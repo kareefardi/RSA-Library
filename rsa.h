@@ -22,7 +22,7 @@ struct private_key_class{
 // This function generates public and private keys, then stores them in the structures you
 // provide pointers to. The 3rd argument should be the text PRIME_SOURCE_FILE to have it use
 // the location specified above in this header.
-void rsa_gen_keys(struct public_key_class *pub, struct private_key_class *priv, const char *PRIME_SOURCE_FILE);
+void rsa_gen_keys(struct public_key_class *pub, struct private_key_class *priv);
 
 // This function will encrypt the data pointed to by message. It returns a pointer to a heap
 // array containing the encrypted data, or NULL upon failure. This pointer should be freed when 
