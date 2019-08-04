@@ -44,9 +44,9 @@ long long ExtEuclid(long long a, long long b)
 
 long long rsa_modExp(long long b, long long e, long long m)
 {
-  // if (b < 0 || e < 0 || m <= 0){
-  //   exit(1);
-  // }
+  if (b < 0 || e < 0 || m <= 0){
+     return -1;
+  }
   b = b % m;
   if(e == 0) return 1;
   if(e == 1) return b;
@@ -59,8 +59,7 @@ long long rsa_modExp(long long b, long long e, long long m)
 
 }
 
-void rsa_gen_keys(struct public_key_class *pub, struct private_key_class *priv)
-{
+void rsa_gen_keys(struct public_key_class *pub, struct private_key_class *priv) {
     // count number of primes in the list
     long long prime_count = sizeof(primes_list) / sizeof(primes_list[0]);
 
@@ -194,8 +193,8 @@ void rsa_gen_keys(struct public_key_class *pub, struct private_key_class *priv)
 // }
 
 
-long long *rsa_encrypt(const char *message, const unsigned long message_size, 
-                     const struct public_key_class *pub)
+int rsa_encrypt(const char *message, const unsigned long message_size, 
+                     const struct public_key_class *pub, long long* encrypted)
 {
   // long long *encrypted = malloc(sizeof(long long)*message_size);
   // if(encrypted == NULL){
@@ -203,18 +202,21 @@ long long *rsa_encrypt(const char *message, const unsigned long message_size,
   //    "Error: Heap allocation failed.\n");
   //   return NULL;
   // }
-  long long *encrypted;
   long long i = 0;
   for(i=0; i < message_size; i++){
     encrypted[i] = rsa_modExp(message[i], pub->exponent, pub->modulus);
+    if (encrypted[i] == -1) {
+	    return -1;
+    }
   }
-  return encrypted;
+  return 0;
 }
 
 
-char *rsa_decrypt(const long long *message, 
+int rsa_decrypt(const long long *message, 
                   const unsigned long message_size, 
-                  const struct private_key_class *priv)
+                  const struct private_key_class *priv,
+		  char* decrypted)
 {
   // if(message_size % sizeof(long long) != 0){
   //   fprintf(stderr,
@@ -225,7 +227,6 @@ char *rsa_decrypt(const long long *message,
   // // (decrypted)
   // char *decrypted = malloc(message_size/sizeof(long long));
   // char *temp = malloc(message_size);
-  char *decrypted;
   char *temp;
   // if((decrypted == NULL) || (temp == NULL)){
   //   fprintf(stderr,
@@ -236,6 +237,9 @@ char *rsa_decrypt(const long long *message,
   long long i = 0;
   for(i=0; i < message_size/8; i++){
     temp[i] = rsa_modExp(message[i], priv->exponent, priv->modulus);
+    if (temp[i] == -1) {
+	    return -1;
+    }
   }
   // The result should be a number in the char range, which gives back the original byte.
   // We put that into decrypted, then return.
@@ -243,5 +247,5 @@ char *rsa_decrypt(const long long *message,
     decrypted[i] = temp[i];
   }
   // free(temp);
-  return decrypted;
+  return 0;
 }
